@@ -54,7 +54,8 @@
         localStorage.removeItem('log_user');
         localStorage.removeItem('token');
         this.authenticated = false;
-        router.push('/');
+       // router.push('/');
+         window.location = "/"
       },
       viewCustomers() {
         router.push('/customer-list');
