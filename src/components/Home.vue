@@ -71,7 +71,6 @@
 
 <script>
   import router from '../router';
-  import axios from 'axios';
 
   export default {
     name: 'Home',
@@ -86,7 +85,6 @@
         router.push('/customer-list');
       },
       getUser() {
-        console.log("JSON.parse(localStorage.getIte - home--"+JSON.parse(localStorage.getItem("isAuthenticates")));
         if (localStorage.getItem("isAuthenticates")
           && JSON.parse(localStorage.getItem("isAuthenticates")) === true) {
           this.validUserName = JSON.parse(localStorage.getItem("log_user"));

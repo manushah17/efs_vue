@@ -25,6 +25,8 @@
 
 <script>
   import router from './router';
+  import {APIService} from './http/APIService';
+  const apiService = new APIService();
 
   export default {
     name: 'App',
@@ -33,7 +35,17 @@
     }),
 
     mounted() {
-      this.checkLoggedIn();
+        apiService.getCustomerList().then(response => {
+          this.authenticated = true;
+        }).catch(error => {
+          if (error.response.status === 401) {
+            localStorage.removeItem('isAuthenticates');
+            localStorage.removeItem('log_user');
+            localStorage.removeItem('token');
+            this.authenticated = false;
+          }
+        });
+        console.log('this.authenticated--'+this.authenticated);
     },
 
     methods: {
@@ -50,17 +62,7 @@
       login() {
         router.push("/auth");
       },
-      checkLoggedIn() {
-        if (localStorage.getItem("isAuthenticates")
-          && JSON.parse(localStorage.getItem("isAuthenticates")) === true) {
-          this.authenticated = true;
-        } else {
-          localStorage.removeItem('isAuthenticates');
-          localStorage.removeItem('log_user');
-          localStorage.removeItem('token');
-          this.authenticated = false;
-        }
-      },
+
       goHome() {
         router.push('/');
       }

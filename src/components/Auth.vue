@@ -71,10 +71,9 @@
 
 <script>
 
-  import axios from 'axios';
-  import swal from 'sweetalert2';
   import router from '../router';
-  const API_URL = `http://localhost:8000`;
+  import {APIService} from '../http/APIService';
+  const apiService = new APIService();
 
   export default {
     name: 'Auth',
@@ -101,8 +100,7 @@
         // checking if the input is valid
         if (this.$refs.form.validate()) {
           this.loading = true;
-         const url = `${API_URL}/auth/`;
-          axios.post(url, this.credentials).then(res => {
+            apiService.authenticateLogin(this.credentials).then((res)=>{
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('isAuthenticates', JSON.stringify(true));
             localStorage.setItem('log_user', JSON.stringify(this.credentials.username));
@@ -115,14 +113,6 @@
             localStorage.removeItem('token');
            // router.go(-1);
             this.showMsg = 'error';
-            swal({
-              type: 'warning',
-              title: 'Error',
-              text: 'Wrong username or password',
-              showConfirmButton: false,
-              showCloseButton: false,
-              timer: 3000
-            })
           })
         }
       }

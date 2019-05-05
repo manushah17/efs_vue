@@ -71,8 +71,8 @@
                 />
 
               </v-container>
-              <v-btn v-if="!isUpdate" class="blue white--text" @click="createProduct">Save</v-btn>
-              <v-btn v-if="isUpdate" class="blue white--text" @click="updateProduct">Update</v-btn>
+              <v-btn v-if="!isUpdate" class="blue white--text" @click="createCustomer">Save</v-btn>
+              <v-btn v-if="isUpdate" class="blue white--text" @click="updateCustomer">Update</v-btn>
               <v-btn class="white black--text" @click="cancelOperation">Cancel</v-btn>
 
 
@@ -86,10 +86,9 @@
 
 
 <script>
-  import axios from 'axios';
-  import swal from 'sweetalert2';
   import router from '../router';
-  const API_URL = `http://localhost:8000`;
+  import {APIService} from '../http/APIService';
+  const apiService = new APIService();
 
   export default {
     name: 'CustomerCreate',
@@ -104,25 +103,16 @@
       };
     },
     methods: {
-      createProduct() {
-        console.log('create product before call' + JSON.stringify(this.customer));
-        const url = `${API_URL}/api/customers/`;
-        let jwtToken = localStorage.getItem('token');
-        console.log("AuthService.getAuthToken() --" + localStorage.getItem('token'));
-        axios.post(url, this.customer, {headers: {Authorization: `jwt ${jwtToken}`}}).then(response => {
-          console.log(response);
-          // success
-          console.log('response.status--' + response.status);
+      createCustomer() {
+        apiService.addNewCustomer(this.customer).then(response => {
           if (response.status === 201) {
             this.customer = response.data;
-           // router.push("/customer-list");
-            this.showMsg = "";
+             this.showMsg = "";
             router.push('/customer-list/new');
           }else{
               this.showMsg = "error";
           }
         }).catch(error => {
-          console.log('error.response.status--' + error.response.status);
           if (error.response.status === 401) {
             router.push("/auth");
           }else if (error.response.status === 400) {
@@ -133,25 +123,15 @@
       cancelOperation(){
          router.push("/customer-list");
       },
-      updateProduct() {
-        console.log('create product before' + JSON.stringify(this.customer));
-        const url = `${API_URL}/api/customers/${this.customer.pk}`;
-        let jwtToken = localStorage.getItem('token');
-        console.log("AuthService.getAuthToken() --" + localStorage.getItem('token'));
-
-        axios.put(url, this.customer, {headers: {Authorization: `jwt ${jwtToken}`}}).then(response => {
-          console.log(response);
-          // success
-          console.log('response.status--' + response.status);
+      updateCustomer() {
+        apiService.updateCustomer(this.customer).then(response => {
           if (response.status === 200) {
             this.customer = response.data;
-           // router.push("/customer-list");
             router.push('/customer-list/update');
           }else{
               this.showMsg = "error";
           }
         }).catch(error => {
-          console.log('error.response.status--' + error.response.status);
           if (error.response.status === 401) {
             router.push("/auth");
           }else if (error.response.status === 400) {
@@ -161,18 +141,12 @@
       }
     },
     mounted() {
-      console.log("update pk --" + this.$route.params.pk);
       if (this.$route.params.pk) {
         this.pageTitle = "Edit Customer";
         this.isUpdate = true;
-        console.log(this.$route.params.pk)
-        const url = `${API_URL}/api/customers/${this.$route.params.pk}`;
-        let jwtToken = localStorage.getItem('token');
-        axios.get(url, {headers: {Authorization: `jwt ${jwtToken}`}}).then(response => {
-          console.log("get customer in response --" + response);
+        apiService.getCustomer(this.$route.params.pk).then(response => {
           this.customer = response.data;
         }).catch(error => {
-          console.log('error.response.status--' + error.response.status);
           if (error.response.status === 401) {
             router.push("/auth");
           }

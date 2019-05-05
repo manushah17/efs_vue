@@ -81,11 +81,10 @@
 
 
 <script>
-  import axios from 'axios';
-  import swal from 'sweetalert2';
-  import router from '../router';
 
-  const API_URL = `http://localhost:8000`;
+  import router from '../router';
+  import {APIService} from '../http/APIService';
+  const apiService = new APIService();
 
   export default {
     name: "CustomerList",
@@ -122,24 +121,17 @@
         console.log(this.$route.params.msg)
          if (this.$route.params.msg) {
            this.showMsg = this.$route.params.msg;
-          // this.isUpdate = true;
-
          }
       },
       getCustomers() {
-        const url = `${API_URL}/api/customers/`;
-        let jwtToken = localStorage.getItem('token');
-        console.log("jwtToken --" + jwtToken);
-        axios.get(url, {headers: {Authorization: `jwt ${jwtToken}`}}).then(response => {
+        apiService.getCustomerList().then(response => {
           this.customers = response.data.data;
           this.customerSize = this.customers.length;
           if (localStorage.getItem("isAuthenticates")
             && JSON.parse(localStorage.getItem("isAuthenticates")) === true) {
             this.validUserName = JSON.parse(localStorage.getItem("log_user"));
           }
-          console.log("customers -size-" + this.customers.length + "  string--" + JSON.stringify(this.customers));
         }).catch(error => {
-          console.log('error.response.status--' + error.response.status);
           if (error.response.status === 401) {
             localStorage.removeItem('isAuthenticates');
             localStorage.removeItem('log_user');
@@ -149,7 +141,6 @@
         });
       },
       addNewCustomer() {
-        console.log("add new customer---" + JSON.parse(localStorage.getItem("isAuthenticates")));
         if (localStorage.getItem("isAuthenticates")
           && JSON.parse(localStorage.getItem("isAuthenticates")) === true) {
           router.push('/customer-create');
@@ -158,22 +149,16 @@
         }
       },
       updateCustomer(customer) {
-        console.log("update customeer---" + JSON.stringify(customer));
         router.push('/customer-create/' + customer.pk);
       },
       deleteCustomer(customer) {
-        console.log("delete customeer---" + JSON.stringify(customer));
-        const url = `${API_URL}/api/customers/${customer.pk}`;
-        //const url = `http://localhost:8000/api/customers/${customer.pk}`;
-        let jwtToken = localStorage.getItem('token');
-        axios.delete(url, {headers: {Authorization: `jwt ${jwtToken}`}}).then(response => {
+        apiService.deleteCustomer(customer.pk).then(response => {
           if (response.status === 204) {
             alert("Customer deleted");
             this.showMsg = 'deleted';
             this.$router.go();
           }
         }).catch(error => {
-          console.log('error.response.status--' + error.response.status);
           if (error.response.status === 401) {
             localStorage.removeItem('isAuthenticates');
             localStorage.removeItem('log_user');
